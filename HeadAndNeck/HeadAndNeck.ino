@@ -1,10 +1,20 @@
 
-add string
+
 int mode = 0;
 
-
+#include <Ultrasonic.h>
 #include <Servo.h> 
+
+
+Ultrasonic ultrasonic(4,3); // (Trig PIN,Echo PIN)
+
+// Function for sonar reader ============================================================================================================================================================
+int readsonar() {
+  return ultrasonic.Ranging(CM); // CM or INC;
+}
+
  
+// Drivetrain movement command functions =======================================================================================================================
 Servo myservo;  // create servo object to control a servo 
 int val;    // variable to read the value from the analog pin 
 int servoAngle = 40;
@@ -35,15 +45,18 @@ int goleft(int speed) {
   digitalWrite(motorLeft, HIGH);
 }
 
-int LockOnDistance = 160;
+int LockOnDistance = 16;
 
-//Target Seeking Mode ==============================================================================================================================================
+//Target Seeking, Mode = 0 ==============================================================================================================================================
 int findtarget() {
+  
   int center = readsonar();
+  
   Serial.print("Center ");
   Serial.print(center);
   Serial.print(" of ");
   Serial.println(LockOnDistance);
+  
   if (center < LockOnDistance) {
     goforward(255); //Go forward!
   } else {
@@ -51,52 +64,55 @@ int findtarget() {
   }
 }
 
-  //Fine-Tune Targeting Mode =======================================================================================================================================================
+//Fine-Tune Targeting, Mode = 1 =======================================================================================================================================================
 int lockontarget() {
     // Reading and moving the sonar
     //myservo.write(servoCenter);                  // sets the servo position according to the scaled value 
     //delay (500);
+    
     int Center = readsonar(); 
     myservo.write(servoLeft);                  // sets the servo position according to the scaled value 
     delay (500);
+    
     int Left = readsonar();
     myservo.write(servoRight);                  // sets the servo position according to the scaled value 
     delay (500);
+    
     int Right = readsonar();
     myservo.write(servoCenter);                  // sets the servo position according to the scaled value 
     //delay (500);
     
-    int cm10 = 217;
-    int cm3 = 450;
+    int cm10 = 10;
+    int cm3  = 3;
     
     //Speed and Direction Control
-     if ((Center > Right) && (Center > Left)) {
+     if ((Center < Right) && (Center < Left)) {
        // going to center
        Serial.println("center");
-       if (Center < cm10) {
+       if (Center > cm10) {
          goforward(255); //Go forward!
-       } else if (Center < cm3)  {
+       } else if (Center > cm3)  {
          goforward(128); //
        } else {
          Serial.println("Locked center!");   
          mode = 2;
        }
-     } else if ((Right > Center) && (Right > Left)) {
+     } else if ((Right < Center) && (Right < Left)) {
        // going to right
        Serial.println("right");
-       if (Right < cm10) {
+       if (Right > cm10) {
          goright(255); //Go forward!
-       } else if (Right < cm3) {
+       } else if (Right > cm3) {
          goright(128); //
        } else {
          mode = 2;
        }
-     } else if ((Left > Center) && (Left > Right)) {
+     } else if ((Left < Center) && (Left < Right)) {
        // going to left
        Serial.println("left");
-       if (Left < cm10) {
+       if (Left > cm10) {
          goleft(255); //Go forward!
-       } else if (Left < cm3) {
+       } else if (Left > cm3) {
          goleft(128); //
        } else {
          mode = 2;
@@ -105,31 +121,7 @@ int lockontarget() {
  }
 
 
-// These constants won't change.  They're used to give names
-// to the pins used:
-const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
-
-int sensorValue = 0;        // value read from the pot
-int outputValue = 0;        // value output to the PWM (analog out)
-
-unsigned long distance = 0; // variable for storing the distance (cm)
-
-
-// Function for sonar reader ============================================================================================================================================================
-int readsonar() {
-  // variables to take x number of readings and then average them
-  // to remove the jitter/noise from the SRF05 sonar readings
-  const int numOfReadings = 5;                   // number of readings to take/ items in the array
-  int total = 0;                                  // stores the cumlative total
-  
-  // create array loop to iterate over every item in the array
-  for (int i = 0; i < numOfReadings; i++) {
-    sensorValue = analogRead(analogInPin);
-    total = total + sensorValue;                        // add the reading to the total
-  }
-  return total / numOfReadings;
-}
-
+// Main Program  =======================================================================================================================================================
 void setup() 
 { 
   // initialize serial communications at 9600 bps:
@@ -142,12 +134,17 @@ void setup()
 void loop() {
   
   if (mode == 0) {
+    
 //   Serial.println("findtarget");
-   findtarget();
+    findtarget();
+    
   } else if (mode == 1){
+    
 //    Serial.println("lockontarget");
     lockontarget();
+    
   } else if (mode == 2) {
+    
     Serial.println("LOCKED");
     //makesomenoise();
     //turnaround(255);
@@ -160,3 +157,4 @@ void loop() {
   delay(1500);
   
 }
+
