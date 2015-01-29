@@ -1,5 +1,5 @@
 
-
+add string
 int mode = 0;
 
 
