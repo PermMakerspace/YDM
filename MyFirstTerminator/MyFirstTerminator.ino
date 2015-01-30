@@ -32,8 +32,8 @@ int goforward(int speed) {
 
 /* Drivetrain Reverse */
 int goreverse(int speed) {
-  motors.setM1Speed(speed);
-  motors.setM2Speed(speed);
+  motors.setM1Speed(-1 * speed);
+  motors.setM2Speed(-1 * speed);
 }
 
 
