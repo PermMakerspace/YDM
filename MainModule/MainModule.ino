@@ -4,6 +4,7 @@ int mode = 0;
 
 #include <Ultrasonic.h>
 #include <Servo.h> 
+#include <DRV8835MotorShield.h>
 
 
 Ultrasonic ultrasonic(4,3); // (Trig PIN,Echo PIN)
@@ -13,41 +14,59 @@ int readsonar() {
   return ultrasonic.Ranging(CM); // CM or INC;
 }
 
+// Drivetrain vars =================================
+
+DRV8835MotorShield motors;
+
+int fullSpeed = 400;  //400
+int lowSpeed = 150;  //150
  
 // Drivetrain movement command functions =======================================================================================================================
+
+/* Drivetrain Forward */
+int goforward(int speed) {
+  motors.setM1Speed(speed);
+  motors.setM2Speed(speed);
+}
+
+/* Drivetrain Reverse */
+int goreverse(int speed) {
+  motors.setM1Speed(-1 * speed);
+  motors.setM2Speed(-1 * speed);
+}
+
+/* Drivetrain Turn Right */
+int goright(int speed) {
+  motors.setM1Speed(speed);
+  motors.setM2Speed(0);
+}
+
+/* Drivetrain Turn Left */
+int goleft(int speed) {  
+  motors.setM1Speed(0);
+  motors.setM2Speed(speed);
+}
+
+/* Drivetrain turn around over left */
+int turnaround(int speed) {
+  
+  motors.setM1Speed(-speed);
+  motors.setM2Speed(speed);
+  delay(3000);                //Time to turn
+  motors.setM1Speed(0);
+  motors.setM2Speed(0);
+}
+
+//Target Seeking, Mode = 0 ==============================================================================================================================================
 Servo myservo;  // create servo object to control a servo 
-int val;    // variable to read the value from the analog pin 
+
 int servoAngle = 40;
 int servoLeft = 90 - servoAngle;
 int servoRight = 90 + servoAngle;
 int servoCenter = 90;
-//
-int motorRight = 11;
-int motorLeft = 12;
 
-int goforward(int speed) {  
-  digitalWrite(motorRight, HIGH);
-  digitalWrite(motorLeft, HIGH);
-}
+int LockOnDistance = 16;  //cm
 
-int turnaround(int speed) {
-  digitalWrite(motorRight, LOW);
-  digitalWrite(motorLeft, LOW);
-}
-
-int goright(int speed) {
-  digitalWrite(motorRight, HIGH);
-  digitalWrite(motorLeft, LOW);
-}
-
-int goleft(int speed) {
-  digitalWrite(motorRight, LOW);
-  digitalWrite(motorLeft, HIGH);
-}
-
-int LockOnDistance = 16;
-
-//Target Seeking, Mode = 0 ==============================================================================================================================================
 int findtarget() {
   
   int center = readsonar();
@@ -57,8 +76,8 @@ int findtarget() {
   Serial.print(" of ");
   Serial.println(LockOnDistance);
   
-  if (center < LockOnDistance) {
-    goforward(255); //Go forward!
+  if (center > LockOnDistance) {
+    goforward(fullSpeed); //Go forward!
   } else {
     mode = 1;
   }
@@ -90,9 +109,9 @@ int lockontarget() {
        // going to center
        Serial.println("center");
        if (Center > cm10) {
-         goforward(255); //Go forward!
+         goforward(fullSpeed); //Go forward!
        } else if (Center > cm3)  {
-         goforward(128); //
+         goforward(lowSpeed); //
        } else {
          Serial.println("Locked center!");   
          mode = 2;
@@ -101,9 +120,9 @@ int lockontarget() {
        // going to right
        Serial.println("right");
        if (Right > cm10) {
-         goright(255); //Go forward!
+         goright(fullSpeed); //Go forward!
        } else if (Right > cm3) {
-         goright(128); //
+         goright(lowSpeed); //
        } else {
          mode = 2;
        }
@@ -111,9 +130,9 @@ int lockontarget() {
        // going to left
        Serial.println("left");
        if (Left > cm10) {
-         goleft(255); //Go forward!
+         goleft(fullSpeed); //Go forward!
        } else if (Left > cm3) {
-         goleft(128); //
+         goleft(lowSpeed); //
        } else {
          mode = 2;
        }
@@ -121,16 +140,24 @@ int lockontarget() {
  }
 
 
-// Main Program  =======================================================================================================================================================
+// Main Setup  =======================================================================================================================================================
 void setup() 
 { 
   // initialize serial communications at 9600 bps:
   Serial.begin(9600); 
 
-  myservo.attach(9);  // attaches the servo on pin 9 to the servo object 
-  mode = 1;
+  //Motor init
+  // uncomment one or both of the following lines if your motors' directions need to be flipped
+  motors.flipM1(true);  //Left
+  //motors.flipM2(true);  //Right
+
+  //Neck init
+  myservo.attach(5);  // attaches the servo on pin 9 to the servo object 
+  
+  mode = 0;
 } 
 
+// Main Loop  ===================================
 void loop() {
   
   if (mode == 0) {
@@ -146,6 +173,7 @@ void loop() {
   } else if (mode == 2) {
     
     Serial.println("LOCKED");
+    delay(10000);
     //makesomenoise();
     //turnaround(255);
 //    mode = 0;
