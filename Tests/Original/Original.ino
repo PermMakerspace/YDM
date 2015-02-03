@@ -7,13 +7,13 @@ void setup()
 
   //Motor init
   // uncomment one or both of the following lines if your motors' directions need to be flipped
-  //motors.flipM1(true);
-  //motors.flipM2(true);
+  motors.flipM1(true);  //Left
+  //motors.flipM2(true);  //Right
 
   //Neck init
   myservo.attach(5);  // attaches the servo on pin 9 to the servo object 
   
-  mode = 1;
+  mode = 0;
 } 
 
 // Main Loop  ===================================
@@ -32,7 +32,8 @@ void loop() {
   } else if (mode == 2) {
     
     Serial.println("LOCKED");
-    //makesomenoise();
+    delay(10000);
+   //makesomenoise();
     //turnaround(255);
 //    mode = 0;
 
