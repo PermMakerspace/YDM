@@ -88,56 +88,118 @@ int lockontarget() {
     // Reading and moving the sonar
     //myservo.write(servoCenter);                  // sets the servo position according to the scaled value 
     //delay (500);
-    
-    int Center = readsonar(); 
-    myservo.write(servoLeft);                  // sets the servo position according to the scaled value 
-    delay (500);
-    
-    int Left = readsonar();
-    myservo.write(servoRight);                  // sets the servo position according to the scaled value 
-    delay (500);
-    
-    int Right = readsonar();
-    myservo.write(servoCenter);                  // sets the servo position according to the scaled value 
-    //delay (500);
-    
-    int cm10 = 10;
-    int cm3  = 3;
-    
-    //Speed and Direction Control
-     if ((Center < Right) && (Center < Left)) {
-       // going to center
-       Serial.println("center");
-       if (Center > cm10) {
-         goforward(fullSpeed); //Go forward!
-       } else if (Center > cm3)  {
-         goforward(lowSpeed); //
-       } else {
-         Serial.println("Locked center!");   
-         mode = 2;
-       }
-     } else if ((Right < Center) && (Right < Left)) {
-       // going to right
-       Serial.println("right");
-       if (Right > cm10) {
-         goright(fullSpeed); //Go forward!
-       } else if (Right > cm3) {
-         goright(lowSpeed); //
-       } else {
-         mode = 2;
-       }
-     } else if ((Left < Center) && (Left < Right)) {
-       // going to left
-       Serial.println("left");
-       if (Left > cm10) {
-         goleft(fullSpeed); //Go forward!
-       } else if (Left > cm3) {
-         goleft(lowSpeed); //
-       } else {
-         mode = 2;
-       }
-     }
- }
+  // Reading and moving the sonar
+  //myservo.write(servoCenter);                  // sets the servo position according to the scaled value 
+  //delay (500);
+
+  int Center = readsonar(); 
+  myservo.write(servoLeft);                  // sets the servo position according to the scaled value 
+  delay (500);
+
+  int Left = readsonar();
+  myservo.write(servoRight);                  // sets the servo position according to the scaled value 
+  delay (500);
+
+  int Right = readsonar();
+  myservo.write(servoCenter);                  // sets the servo position according to the scaled value 
+  //delay (500);
+
+  int cm10 = 10;
+  int cm3  = 3;
+
+  //Speed and Direction Control
+  if ((Center < Right) && (Center < Left)) {
+    // going to center
+    Serial.println("center");
+    if (Center > cm10) {
+      goforward(fullSpeed); //Go forward!
+    } 
+    else if (Center > cm3)  {
+      goforward(lowSpeed); //
+    } 
+    else {
+      Serial.println("Locked center!");   
+      mode = 2;
+    }
+  } 
+  else if ((Right < Center) && (Right < Left)) {
+    // going to right
+    Serial.println("right");
+    if (Right > cm10) {
+      goright(fullSpeed); //Go forward!
+    } 
+    else if (Right > cm3) {
+      goright(lowSpeed); //
+    } 
+    else {
+      mode = 2;
+    }
+  } 
+  else if ((Left < Center) && (Left < Right)) {
+    // going to left
+    Serial.println("left");
+    if (Left > cm10) {
+      goleft(fullSpeed); //Go forward!
+    } 
+    else if (Left > cm3) {
+      goleft(lowSpeed); //
+    } 
+    else {
+      mode = 2;
+    }
+  }
+}
+
+// setup pins for drumstick pagers
+int PagerTail  = 13;                           // Pager1 rotate forward Pin (digital #)
+int PagerRight = 16;                         // Pager1 rotate reverse Pin (digital #)
+int PagerLeft  = 17;
+
+// Pager Pulse functions =============================================
+int rightstick() {
+  digitalWrite(PagerRight, 0);
+  delay(200);
+  digitalWrite(PagerRight, 1);
+}
+
+int leftstick() {
+  digitalWrite(PagerLeft, 1);
+  delay(200);
+  digitalWrite(PagerLeft, 0);
+}
+
+int tailstick() {
+  digitalWrite(PagerTail, 1);
+  delay(200);
+  digitalWrite(PagerTail, 0);
+}
+
+//LET THE BEAT DROP! =============================================================================================
+int makesomenoise() {
+  tailstick();
+  rightstick();
+  leftstick();
+  delay (500);       
+  tailstick();
+  leftstick();
+  delay (500);
+  tailstick();
+  rightstick();
+  leftstick();
+  delay (500);
+  tailstick();
+  tailstick();
+  tailstick();
+  tailstick();
+  rightstick();
+  leftstick();
+  rightstick();
+  leftstick();
+  delay (500);
+  tailstick();
+  delay (500);
+  mode = 3;
+}
 
 
 // Main Setup  =======================================================================================================================================================
@@ -152,8 +214,7 @@ void setup()
   //motors.flipM2(true);  //Right
 
   //Neck init
-  myservo.attach(5);  // attaches the servo on pin 9 to the servo object 
-  
+  //myservo.attach(5);  // attaches the servo on pin 9 to the servo object 
   mode = 0;
 } 
 
