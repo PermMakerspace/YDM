@@ -20,7 +20,7 @@ DRV8835MotorShield motors;
 
 int fullSpeed = 400;  //400
 int lowSpeed = 150;  //150
- 
+
 // Drivetrain movement command functions =======================================================================================================================
 
 /* Drivetrain Forward */
@@ -49,7 +49,7 @@ int goleft(int speed) {
 
 /* Drivetrain turn around over left */
 int turnaround(int speed) {
-  
+
   motors.setM1Speed(-speed);
   motors.setM2Speed(speed);
   delay(3000);                //Time to turn
@@ -68,26 +68,24 @@ int servoCenter = 90;
 int LockOnDistance = 16;  //cm
 
 int findtarget() {
-  
+
   int center = readsonar();
-  
+
   Serial.print("Center ");
   Serial.print(center);
   Serial.print(" of ");
   Serial.println(LockOnDistance);
-  
+
   if (center > LockOnDistance) {
     goforward(fullSpeed); //Go forward!
-  } else {
+  } 
+  else {
     mode = 1;
   }
 }
 
 //Fine-Tune Targeting, Mode = 1 =======================================================================================================================================================
 int lockontarget() {
-    // Reading and moving the sonar
-    //myservo.write(servoCenter);                  // sets the servo position according to the scaled value 
-    //delay (500);
   // Reading and moving the sonar
   //myservo.write(servoCenter);                  // sets the servo position according to the scaled value 
   //delay (500);
@@ -181,6 +179,7 @@ int makesomenoise() {
   leftstick();
   delay (500);       
   tailstick();
+  rightstick();
   leftstick();
   delay (500);
   tailstick();
@@ -193,10 +192,13 @@ int makesomenoise() {
   tailstick();
   rightstick();
   leftstick();
+  tailstick();
   rightstick();
   leftstick();
   delay (500);
   tailstick();
+  rightstick();
+  leftstick();
   delay (500);
   mode = 3;
 }
@@ -215,12 +217,13 @@ void setup()
 
   //Neck init
   //myservo.attach(5);  // attaches the servo on pin 9 to the servo object 
+
   mode = 0;
 } 
 
 // Main Loop  ===================================
 void loop() {
-  
+
   if (mode == 0) {
     
 //   Serial.println("findtarget");
@@ -234,16 +237,17 @@ void loop() {
   } else if (mode == 2) {
     
     Serial.println("LOCKED");
-    delay(10000);
-    //makesomenoise();
-    //turnaround(255);
-//    mode = 0;
+    delay(1000);
+   makesomenoise();
+    turnaround(255);
+    mode = 0;
 
   }
 //   Serial.println(mode, DEC);         // print out the average distance to the debugg 
 //    Serial.println("Next loop");
 
   delay(1500);
-  
+
 }
+
 
